@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>Developing Web Game with Phaser</title>
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/phaser/3.52.0/phaser.min.js"></script>
+
+</head>
+
+<body>
+
+	<h1>PHASER GAME DEVELOPMENT</h1>
+
+	<script>
+	const scene_w = 640;
+	const scene_h = 480;
+	const config = {
+		type: Phaser.AUTO,
+		width: scene_w,
+		height: scene_h,
+		pixelArt: true,
+		scene: {
+			preload: preload,
+			create:	create,
+			update: update
+		}
+	};
+	
+	let game = new Phaser.Game(config);
+	let bg;
+	const BG_SCALE = 2;
+	//CAR SETTINGS
+	const CAR_SCALE = 4;
+	let car = [];
+
+	let car_left_top_x = -128;//-128
+	let car_left_top_y = scene_h/2 + 52;
+
+	let car_left_bottom_x = -128;//-128
+	let car_left_bottom_y = scene_h/2 + 136; 
+
+	let car_right_top_x = scene_w + 128;//-128
+	let car_right_top_y = scene_h/2 - 52;//-128
+
+	let car_right_bottom_x = scene_w + 128;//-128
+	let car_right_bottom_y = scene_h/2 - 136;//-128
+
+	let player;
+	let player_init_x = scene_w/2;
+	let player_init_y = scene_h - 32;
+	let player_speed = 16;
+
+	let up_key;
+	let down_key;
+	let right_key;
+	let left_key;
+
+	let car_list = [
+		{
+			name: "car_1",
+			img: "ambulance.png",
+			speed: 4
+		},
+		{
+			name: "car_2",
+			img: "police.png",
+			speed:6
+		},
+		{
+			name: "car_3",
+			img: "sedan.png",
+			speed: 2,
+			flip: true
+		},
+		{
+			name: "car_4",
+			img: "scooter.png",
+			speed: 3,
+			flip: true
+		}
+	];
+
+	const PATH_car = "PNG/Cars/";
+	const PATH_char = "PNG/Characters/";
+
+	function preload (){	
+		this.load.image("bg","road.jpg");
+		
+		car_list.forEach(car =>{
+			this.load.image(car.name, PATH_car+car.img);
+		});
+			
+		this.load.image("player", PATH_char+"woman.png");
+	}
+
+	function create () {
+		bg = this.add.image(scene_w/2, scene_h/2, "bg");
+		bg.setScale(BG_SCALE);
+
+		car.push(this.add.image(car_left_top_x, car_left_top_y, "car_1"));
+		car.push(this.add.image(car_left_bottom_x, car_left_bottom_y, "car_2"));
+		car.push(this.add.image(car_right_top_x, car_right_top_y , "car_3"));
+		car.push(this.add.image(car_right_bottom_x, car_right_bottom_y, "car_4"));
+		
+		car.forEach((element, index, array) => {
+			element.speed = car_list[index].speed;
+			element.setScale(CAR_SCALE);
+			if(car_list[index].flip)
+				element.flipX = true;
+		});
+		
+		player = this.add.image(player_init_x, player_init_y, "player");	
+		player.setScale(4);
+	
+		up_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+		down_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+		left_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+		right_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+	}
+
+	function comprobate_car(car){
+		if(car.flipX){
+			if(car.x <= -128){
+				car.x = car_right_top_x;
+			}
+		}else{
+			if(car.x >= scene_w + 128)
+				car.x = car_left_top_x;
+		}
+	}
+
+	function update () {
+		if(up_key.isDown){
+			player.y--;
+		}
+		else if(down_key.isDown){
+			player.y++;
+		}
+		if(right_key.isDown){
+			player.x++;
+		}
+		else if(left_key.isDown){
+			player.x--;
+		}
+
+		car.forEach(car => {
+			if (car.flipX){
+				car.x -= car.speed;
+			}
+			else{
+				car.x += car.speed;
+			}
+		});
+
+		car.forEach(comprobate_car);
+	}
+
+	</script>
+
+</body>		
+</html>
