@@ -38,8 +38,6 @@
 	const CAR_SCALE = 4;
 	let car = [];
 	
-	let particles;
-	
 	let car_left_top_x = -128;//-128
 	let car_left_top_y = scene_h/2 + 52;
 
@@ -51,7 +49,8 @@
 
 	let car_right_bottom_x = scene_w + 128;//-128
 	let car_right_bottom_y = scene_h/2 - 136;//-128
-
+	
+	let particles;
 	let player;
 	let player_init_x = scene_w/2;
 	let player_init_y = scene_h - 32;
@@ -86,13 +85,16 @@
 			flip: true
 		}
 	];
+	
+	let game_screen;
 
 	const PATH_car = "PNG/Cars/";
 	const PATH_smoke = "PNG/Props/"
 	const PATH_char = "PNG/Characters/";
 	const PATH_spritesheets = "Spritesheet/";
 
-	function preload (){	
+	function preload (){
+		game_screen = this;
 		this.load.image("bg","road.jpg");
 		this.load.image("smoke",PATH_smoke+"car_smoke.png");
 		car_list.forEach(car =>{
@@ -103,7 +105,7 @@
 	}
 
 	function create () {
-		bg = this.add.image(scene_w/2, scene_h/2, "bg");
+		bg = this.physics.add.image(scene_w/2, scene_h/2, "bg");
 		bg.setScale(BG_SCALE);
 		
 		particles = this.add.particles("smoke");
@@ -123,26 +125,32 @@
 		x: 200,
 		y: 300
 		});
-		car.push(this.add.image(car_left_top_x, car_left_top_y, "car_1"));
-		car.push(this.add.image(car_left_bottom_x, car_left_bottom_y, "car_2"));
-		car.push(this.add.image(car_right_top_x, car_right_top_y , "car_3"));
-		car.push(this.add.image(car_right_bottom_x, car_right_bottom_y, "car_4"));
+		
+		car.push(this.physics.add.image(car_left_top_x, car_left_top_y, "car_1"));
+		car.push(this.physics.add.image(car_left_bottom_x, car_left_bottom_y, "car_2"));
+		car.push(this.physics.add.image(car_right_top_x, car_right_top_y , "car_3"));
+		car.push(this.physics.add.image(car_right_bottom_x, car_right_bottom_y, "car_4"));
 		
 		car.forEach((element, index, array) => {
 			element.speed = car_list[index].speed;
 			element.setScale(CAR_SCALE);
 			if(car_list[index].flip)
 				element.flipX = true;
-		});
+		});	
 		
 		const moveAnimate = this.anims.create({
 			key: 'moves',
 			frames: this.anims.generateFrameNumbers('player'),
 			frameRate: 8
-		});
+		});	
 		player = this.physics.add.sprite(player_init_x, player_init_y, "player");	
 		player.setScale(4);
-	
+		
+		
+		car.forEach(function (element){
+			game_screen.physics.add.overlap(player,element,
+				function(p,c){ game_screen.scene.restart();}, null, this);
+		});
 		up_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
 		down_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
 		left_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
