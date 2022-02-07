@@ -1,2 +1,2 @@
-# marques_uf3
-Phaser Project
+# Phaser Game, Horizontal Scroller
+Web Development Learning Project, Creating A Server And Game Mechanics
